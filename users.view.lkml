@@ -37,6 +37,7 @@ view: users {
   }
 
   dimension: email {
+    label: "e-mail"
     type: string
     sql: ${TABLE}.email ;;
   }
@@ -46,15 +47,24 @@ view: users {
     sql: ${TABLE}.first_name ;;
   }
 
-  dimension: gender {
-    type: string
-    sql: ${TABLE}.gender ;;
-  }
 
   dimension: last_name {
     type: string
     sql: ${TABLE}.last_name ;;
   }
+
+  dimension: name {
+    type: string
+    sql:  ${first_name} || ' ' || ${last_name} ;;
+  }
+
+
+  dimension: gender {
+    type: string
+    sql: ${TABLE}.gender ;;
+  }
+
+
 
   dimension: state {
     type: string
