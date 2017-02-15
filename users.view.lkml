@@ -12,6 +12,22 @@ view: users {
     sql: ${TABLE}.age ;;
   }
 
+  dimension: age_tier {
+    type: tier
+    tiers: [0,10,20,30,40,60,80,100]
+    sql: ${age} ;;
+  }
+
+  dimension: is_over_21 {
+    hidden: yes
+    type: yesno
+    sql:  ${age}>=21 ;;
+  }
+
+dimension: city_state {
+  sql: ${city}||' ' ||${state} ;;
+}
+
   dimension: city {
     type: string
     sql: ${TABLE}.city ;;
@@ -43,17 +59,20 @@ view: users {
   }
 
   dimension: first_name {
+    hidden: yes
     type: string
     sql: ${TABLE}.first_name ;;
   }
 
-
   dimension: last_name {
+    hidden: yes
     type: string
     sql: ${TABLE}.last_name ;;
   }
 
   dimension: name {
+    label: "Full Name"
+    description: "Full Name of the User"
     type: string
     sql:  ${first_name} || ' ' || ${last_name} ;;
   }
@@ -61,7 +80,11 @@ view: users {
 
   dimension: gender {
     type: string
-    sql: ${TABLE}.gender ;;
+    sql: CASE
+          WHEN ${TABLE}.gender = 'f'
+            THEN 'Female'
+          ELSE 'Male'
+        END ;;
   }
 
 
@@ -69,6 +92,11 @@ view: users {
   dimension: state {
     type: string
     sql: ${TABLE}.state ;;
+    drill_fields: [city]
+    link: {
+      label: " explore by city"
+      url: "https://teach.corp.looker.com/explore/test_look/users?fields=users.gender,users.average_age,users.count,users.city&f[users.gender]=Male&f[users.state]={{ value }}"
+    }
   }
 
   dimension: traffic_source {
@@ -77,12 +105,42 @@ view: users {
   }
 
   dimension: zip {
-    type: number
+    type: zipcode
     sql: ${TABLE}.zip ;;
+
   }
 
   measure: count {
     type: count
-    drill_fields: [id, first_name, last_name, orders.count]
+    drill_fields: [user_drill*, orders.count]
   }
+
+
+
+
+  measure: average_age {
+    type: average
+    sql: ${age} ;;
+    drill_fields: [user_drill*, age, orders.count]
+  }
+
+  measure: average_age_over_21 {
+    type: average
+    sql: ${age} ;;
+    drill_fields: [user_drill*, age, orders.count]
+    filters: {
+      field: is_over_21
+      value: "yes"
+    }
+  }
+
+  set: user_drill {
+    fields: [id, first_name, last_name,zip]
+  }
+
+
+
+
+
+
 }

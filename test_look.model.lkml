@@ -48,14 +48,13 @@ explore: orders {
   }
 }
 
-explore: product_facts {
-  join: products {
-    type: left_outer
-    sql_on: ${product_facts.product_id} = ${products.id} ;;
-    relationship: many_to_one
-  }
-}
-
 explore: products {}
 
-explore: users {}
+explore: users {
+  join: orders {
+    view_label: "Order Info"
+    type: left_outer
+    sql_on: ${orders.user_id} = ${users.id} ;;
+    relationship: one_to_many
+  }
+}
